@@ -42,8 +42,4 @@ public class CosmosConfiguration extends AbstractCosmosConfiguration {
                            .enableQueryMetrics(properties.isQueryMetricsEnabled())
                            .build();
     }
-
-
-
-
 }
