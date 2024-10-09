@@ -31,8 +31,18 @@ public class ProductService {
         this.productRepository.save(product);
     }
 
-    public void delete(String productId) {
-        this.productRepository.deleteById(productId);
+    public void delete(String productId) throws Exception {
+
+        Optional<Product> optProduct = this.productRepository.findById(productId);
+
+        if (optProduct.isPresent() == false)
+            throw new Exception("Não encontrei o produto a ser excluido");
+
+        this.productRepository.deleteById(productId, new PartitionKey(optProduct.get().getProductCategory()));
+    }
+
+    public List<Product> findByCategory(String category) {
+        return this.productRepository.findByProductCategory(category);
     }
 
 }

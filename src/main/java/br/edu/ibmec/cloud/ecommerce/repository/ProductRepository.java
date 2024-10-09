@@ -11,4 +11,5 @@ import br.edu.ibmec.cloud.ecommerce.entity.Product;
 @Repository
 public interface ProductRepository extends CosmosRepository<Product, String> {
     List<Product> findByProductName(String productName);
+    List<Product> findByProductCategory(String productCategory);
 }
