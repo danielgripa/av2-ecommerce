@@ -15,12 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.azure.core.annotation.Delete;
-import com.azure.core.annotation.Get;
-
 import br.edu.ibmec.cloud.ecommerce.entity.Product;
 import br.edu.ibmec.cloud.ecommerce.service.ProductService;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/products")
@@ -30,7 +27,7 @@ public class ProductController {
     private ProductService service;
 
     @PostMapping
-    public ResponseEntity<Product> create(@RequestBody Product product) {
+    public ResponseEntity<Product> create(@Valid @RequestBody Product product) {
         this.service.save(product);
         return new ResponseEntity<>(product, HttpStatus.CREATED);
     }
@@ -53,7 +50,4 @@ public class ProductController {
         this.service.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
-
-     
 }
