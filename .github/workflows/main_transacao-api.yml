@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy JAR app to Azure Web App - transacao-api
+name: Build and Deploy transacao-api To Azure
 
 on:
   push:
@@ -19,11 +19,12 @@ jobs:
       - name: Set up Java version
         uses: actions/setup-java@v4
         with:
-          java-version: 'java21'
-          distribution: 'microsoft'
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
 
       - name: Build with Maven
-        run: mvn clean install
+        run: mvn clean install -f ./cartao_credito/pom.xml
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4

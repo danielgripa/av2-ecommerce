@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy JAR app to Azure Web App - ecommerce-api
+name: Build and Deploy ecommerce-api To Azure
 
 on:
   push:
@@ -24,7 +24,7 @@ jobs:
           cache: maven
 
       - name: Build with Maven
-        run: mvn clean install
+        run: mvn clean install -f ./ecommerce/pom.xml
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
