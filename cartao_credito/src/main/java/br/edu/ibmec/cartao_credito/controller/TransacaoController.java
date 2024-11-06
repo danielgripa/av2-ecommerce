@@ -7,7 +7,6 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -61,12 +60,12 @@ public class TransacaoController {
                     request.getComerciante());
             // Objeto de resposta do usuario
             response.setDataTransacao(transacao.getDataTransacao());
-            response.setStatus("Aprovado");
+            response.setStatus("APROVADO");
             response.setValor(transacao.getValor());
             response.setCodigoAutorizacao(UUID.randomUUID());
 
         } catch (Exception e) {
-            response.setStatus("Reprovado:" + e.getMessage());
+            response.setStatus("REPROVADO:" + e.getMessage());
             response.setDataTransacao(LocalDateTime.now());
         }
 

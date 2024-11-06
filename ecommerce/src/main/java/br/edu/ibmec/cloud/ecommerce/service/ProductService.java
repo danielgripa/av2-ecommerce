@@ -26,6 +26,10 @@ public class ProductService {
         return this.productRepository.findById(productId, new PartitionKey(category));
     }
 
+    public Optional<Product> findById(String productId) {
+        return this.productRepository.findById(productId);
+    }
+
     public void save(Product product) {
         product.setProductId(UUID.randomUUID().toString());
         this.productRepository.save(product);
