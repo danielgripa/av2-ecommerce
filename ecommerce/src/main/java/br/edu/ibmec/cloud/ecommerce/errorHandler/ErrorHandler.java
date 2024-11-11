@@ -23,5 +23,17 @@ public class ErrorHandler {
         }
         return errors;
     }
+    
+    @ExceptionHandler(CheckoutException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ValidationErrorResponse checkoutHandler(CheckoutException e) {
+        ValidationErrorResponse errors = new ValidationErrorResponse();
+        Validation validation = new Validation();
+        validation.setField("error_compra");
+        validation.setMessage(e.getMessage());
+        errors.getValidationErrors().add(validation);
+        return errors;
+    }
 
 }
