@@ -4,10 +4,12 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import br.edu.ibmec.cloud.ecommerce.config.CosmosProperties;
 import br.edu.ibmec.cloud.ecommerce.config.TransactionProperties;
 import br.edu.ibmec.cloud.ecommerce.entity.Order;
 import br.edu.ibmec.cloud.ecommerce.entity.Product;
@@ -15,6 +17,7 @@ import br.edu.ibmec.cloud.ecommerce.errorHandler.CheckoutException;
 import br.edu.ibmec.cloud.ecommerce.repository.OrderRepository;
 
 @Service
+@EnableConfigurationProperties(TransactionProperties.class)
 public class CheckoutService {
     
     @Autowired
