@@ -90,8 +90,15 @@ public class TransacaoController {
         if (optCartao.isPresent() == false)
             throw new UsuarioException(
                     "Não encontrei o cartão associado a esse usuário com o numero " + numeroCartao);
+        
+        // Pega as transações corrente do cartão de credito pelo ano e mes
+        List<Transacao> transacaos = optCartao.get()
+                                              .getTransacoes()
+                                              .stream()
+                                              .filter(x -> x.dataTransacao.getMonth() == LocalDateTime.now().getMonth() && x.dataTransacao.getYear() == LocalDateTime.now().getYear())
+                                              .toList();
 
-        return new ResponseEntity<>(optCartao.get().getTransacoes(), HttpStatus.OK);                    
+        return new ResponseEntity<>(transacaos, HttpStatus.OK);                    
     }
 
 }
