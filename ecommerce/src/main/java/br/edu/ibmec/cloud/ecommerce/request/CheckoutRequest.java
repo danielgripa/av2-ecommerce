@@ -6,5 +6,5 @@ import lombok.Data;
 public class CheckoutRequest {
     private int idUsuario;
     private String productId;
-    private String numeroCartao;
+    private int numeroCartao;
 }

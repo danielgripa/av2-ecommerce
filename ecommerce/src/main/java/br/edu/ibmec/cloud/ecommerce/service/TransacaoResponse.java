@@ -1,7 +1,7 @@
+
 package br.edu.ibmec.cloud.ecommerce.service;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 import lombok.Data;
 
@@ -10,5 +10,5 @@ public class TransacaoResponse {
     private LocalDateTime dataTransacao;
     private double valor;
     private String status;
-    private UUID codigoAutorizacao;
+    private String comerciante; // Adicionado conforme esperado no retorno
 }

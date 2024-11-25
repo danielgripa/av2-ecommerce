@@ -8,7 +8,7 @@ import lombok.Data;
 public class CheckoutResponse {
     private String productId;
     private String status;
-    private LocalDateTime dataCompra;
+    private String dataCompra;
     private String orderId;
 
 }
