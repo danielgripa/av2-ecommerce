@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import br.edu.ibmec.cloud.ecommerce.config.CosmosProperties;
@@ -19,7 +22,7 @@ import br.edu.ibmec.cloud.ecommerce.repository.OrderRepository;
 @Service
 @EnableConfigurationProperties(TransactionProperties.class)
 public class CheckoutService {
-    
+
     @Autowired
     private RestTemplate restTemplate;
 
@@ -29,38 +32,68 @@ public class CheckoutService {
     @Autowired
     private OrderRepository orderRepository;
 
-    public Order checkout(Product product, int idUsuario, String numeroCartao) throws Exception {
+    public Order checkout(Product product, int idUsuario, String numeroCartao) throws CheckoutException {
         try {
+            // Chama o método para autorizar a transação
             TransacaoResponse response = this.autorizar(product, idUsuario, numeroCartao);
 
-            if (response.getStatus().equals("APROVADO") == false) {
-                throw new CheckoutException("Não consegui realizar a compra");
+            // Verifica se a transação foi aprovada
+            if (!"APROVADO".equalsIgnoreCase(response.getStatus())) {
+                throw new CheckoutException("Transação não aprovada: " + response.getStatus());
             }
 
+            // Cria e salva o pedido no banco de dados
             Order order = new Order();
-            order.setOrderId(UUID.randomUUID().toString());
+            order.setOrderId(String.valueOf(response.getIdTransacao())); // Usa o ID da transação
             order.setDataOrder(LocalDateTime.now());
             order.setProductId(product.getProductId());
             order.setUserId(idUsuario);
             order.setStatus("Produto Comprado");
             this.orderRepository.save(order);
+
             return order;
-        }
-        catch (Exception e) {
-            //Gera um erro
-            throw new CheckoutException("Não consegui realizar a compra");
+        } catch (CheckoutException e) {
+            // Relança exceções específicas de checkout
+            throw e;
+        } catch (Exception e) {
+            // Captura e encapsula outros erros
+            throw new CheckoutException("Erro inesperado ao realizar a compra", e);
         }
     }
 
-    private TransacaoResponse autorizar(Product product, int idUsuario, String numeroCartao) {
-        String url = transactionProperties.getTransactionUrl();
+private TransacaoResponse autorizar(Product product, int idUsuario, String numeroCartao) {
+    try {
+        // Substitui {cartaoId} na URL
+        String url = transactionProperties.getTransactionUrl().replace("{cartaoId}", numeroCartao);
+
+        // Preenche os dados da transação
         TransacaoRequest request = new TransacaoRequest();
-
         request.setComerciante(transactionProperties.getMerchant());
-        request.setIdUsuario(idUsuario);
-        request.setNumeroCartao(numeroCartao);
+        request.setDataTransacao(LocalDateTime.now().toString()); // Inclui a data e hora da transação
+        request.setIdUsuario(idUsuario); // Adiciona o ID do usuário
         request.setValor(product.getPrice());
+
+        // Faz a requisição ao serviço de transações
         ResponseEntity<TransacaoResponse> response = this.restTemplate.postForEntity(url, request, TransacaoResponse.class);
+
+        // Verifica o status HTTP da resposta
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            throw new CheckoutException("Erro na autorização: HTTP " + response.getStatusCode());
+        }
+
+        // Retorna o corpo da resposta
         return response.getBody();
+
+    } catch (HttpClientErrorException | HttpServerErrorException e) {
+
+        throw new CheckoutException("Erro HTTP ao autorizar a transação: " + e.getStatusCode() + " - " + e.getResponseBodyAsString(), e);
+    } catch (RestClientException e) {
+
+        throw new CheckoutException("Erro de comunicação com o serviço de transações.", e);
+    } catch (Exception e) {
+
+        throw new CheckoutException("Erro inesperado ao autorizar a transação.", e);
     }
+}
+
 }

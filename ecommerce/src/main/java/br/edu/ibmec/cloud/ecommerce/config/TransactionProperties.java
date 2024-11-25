@@ -11,4 +11,6 @@ import lombok.Setter;
 public class TransactionProperties {
     private String transactionUrl;
     private String merchant;
+
+    
 }
