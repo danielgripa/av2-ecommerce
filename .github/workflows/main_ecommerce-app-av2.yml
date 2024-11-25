@@ -30,7 +30,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: java-app
-          path: './ecommerce/target/*.jar' # Atualizado com o caminho correto
+          path: './ecommerce/target/*.jar' # Garante o caminho correto para o arquivo gerado
 
   deploy:
     runs-on: ubuntu-latest
@@ -39,14 +39,14 @@ jobs:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write #This is required for requesting the JWT
+      id-token: write # Necessário para solicitar o JWT
   
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: java-app
-          path: ./ecommerce # Adicionado para garantir o diretório correto
+          path: './ecommerce' # Garante o diretório correto para os artefatos
 
       - name: Login to Azure
         uses: azure/login@v2
@@ -61,4 +61,4 @@ jobs:
         with:
           app-name: 'ecommerce-app-av2'
           slot-name: 'Production'
-          package: './ecommerce/target/*.jar' # Atualizado com o caminho correto para o artefato
+          package: './ecommerce/target/*.jar' # Ajustado para buscar o artefato no local correto
