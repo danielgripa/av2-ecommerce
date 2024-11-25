@@ -23,6 +23,7 @@ jobs:
           distribution: 'microsoft'
 
       - name: Build with Maven
+        working-directory: ./ecommerce
         run: mvn clean install
 
       - name: Upload artifact for deployment job
