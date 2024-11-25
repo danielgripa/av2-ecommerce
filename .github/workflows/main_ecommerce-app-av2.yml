@@ -20,15 +20,15 @@ jobs:
           distribution: 'microsoft'
 
       - name: Build with Maven
-        working-directory: ./ecommerce
+        working-directory: ./ecommerce # Diretório do projeto
         run: mvn clean install
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: java-app
-          path: './ecommerce/target/*.jar'
-          
+          path: './ecommerce/target/*.jar' # Caminho para o JAR gerado
+
   deploy:
     runs-on: ubuntu-latest
     needs: build
@@ -37,7 +37,7 @@ jobs:
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
       id-token: write #This is required for requesting the JWT
-  
+
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
@@ -47,9 +47,9 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_21C06124BC7B41D9B27744426B582DFB }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_486B3369B8E0404389B756A37F9406A7 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_CBD60315CD064AEC93480CA004E743B8 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
@@ -57,4 +57,4 @@ jobs:
         with:
           app-name: 'ecommerce-app-av2'
           slot-name: 'Production'
-          package: './java-app/*.jar' # Use o caminho do artefato baixado
+          package: 'java-app/*.jar' # Corrigido para referenciar o artefato baixado
