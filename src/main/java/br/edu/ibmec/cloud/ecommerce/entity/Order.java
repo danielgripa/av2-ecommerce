@@ -20,5 +20,6 @@ public class Order {
     private int userId;
     private String dataOrder;
     private String status;
+    private int numeroCartao;
     
 }

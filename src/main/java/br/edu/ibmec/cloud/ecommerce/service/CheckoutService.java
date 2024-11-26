@@ -22,9 +22,14 @@ import br.edu.ibmec.cloud.ecommerce.entity.Product;
 import br.edu.ibmec.cloud.ecommerce.errorHandler.CheckoutException;
 import br.edu.ibmec.cloud.ecommerce.repository.OrderRepository;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 @EnableConfigurationProperties(TransactionProperties.class)
 public class CheckoutService {
+
+    private static final Logger logger = LoggerFactory.getLogger(CheckoutService.class);
 
     @Autowired
     private RestTemplate restTemplate;
@@ -37,13 +42,13 @@ public class CheckoutService {
 
     public Order checkout(Product product, int idUsuario, int numeroCartao) throws CheckoutException {
         try {
-            System.out.println("[CHECKOUT] Iniciando processo de checkout...");
+            logger.info("[CHECKOUT] Iniciando processo de checkout...");
             
             // Autoriza a transação
             boolean transacaoAprovada = this.autorizar(product, numeroCartao);
 
             if (!transacaoAprovada) {
-                System.out.println("[CHECKOUT] Transação não aprovada.");
+                logger.info("[CHECKOUT] Transação não aprovada.");
                 throw new CheckoutException("Transação não aprovada.");
             }
 
@@ -53,26 +58,27 @@ public class CheckoutService {
             order.setDataOrder(LocalDateTime.now().toString());
             order.setProductId(product.getProductId());
             order.setUserId(idUsuario);
+            order.setNumeroCartao(numeroCartao);
             order.setStatus("Produto Comprado");
 
-            System.out.println("[CHECKOUT] Ordem criada: " + order);
+            logger.info("[CHECKOUT] Ordem criada: " + order);
             
             // Tenta salvar a ordem no CosmosDB
             try {
                 this.orderRepository.save(order);
-                System.out.println("[CHECKOUT] Ordem salva com sucesso no CosmosDB.");
+                logger.info("[CHECKOUT] Ordem salva com sucesso no CosmosDB.");
             } catch (Exception e) {
-                System.err.println("[CHECKOUT] Erro ao salvar ordem no CosmosDB: " + e.getMessage());
+                logger.error("[CHECKOUT] Erro ao salvar ordem no CosmosDB: " + e.getMessage());
                 e.printStackTrace();
                 throw e;
             }
 
             return order;
         } catch (CheckoutException e) {
-            System.err.println("[CHECKOUT] Erro de checkout: " + e.getMessage());
+            logger.error("[CHECKOUT] Erro de checkout: " + e.getMessage());
             throw e;
         } catch (Exception e) {
-            System.err.println("[CHECKOUT] Erro inesperado ao realizar a compra: " + e.getMessage());
+            logger.error("[CHECKOUT] Erro inesperado ao realizar a compra: " + e.getMessage());
             e.printStackTrace();
             throw new CheckoutException("Erro inesperado ao realizar a compra", e);
         }
@@ -80,7 +86,7 @@ public class CheckoutService {
 
     private boolean autorizar(Product product, int numeroCartao) throws CheckoutException {
         try {
-            System.out.println("[AUTORIZAÇÃO] Iniciando autorização...");
+            logger.info("[AUTORIZAÇÃO] Iniciando autorização...");
             
             // Substitui {cartaoId} na URL com o valor correto
             String url = transactionProperties.getTransactionUrl().replace("{cartaoId}", String.valueOf(numeroCartao));
@@ -97,25 +103,25 @@ public class CheckoutService {
             // Log do JSON
             ObjectMapper mapper = new ObjectMapper();
             String requestBody = mapper.writeValueAsString(request);
-            System.out.println("[AUTORIZAÇÃO] JSON enviado para a API de transações: " + requestBody);
+            logger.info("[AUTORIZAÇÃO] JSON enviado para a API de transações: " + requestBody);
     
             // Faz a requisição ao serviço de transações
             ResponseEntity<Map> response = this.restTemplate.postForEntity(url, request, Map.class);
     
             // Verifica o status da resposta
             Map<String, String> responseBody = response.getBody();
-            System.out.println("[AUTORIZAÇÃO] Resposta recebida da API de transações: " + responseBody);
+            logger.info("[AUTORIZAÇÃO] Resposta recebida da API de transações: " + responseBody);
 
             return responseBody != null && "Sucesso".equalsIgnoreCase(responseBody.get("status"));
     
         } catch (HttpClientErrorException | HttpServerErrorException e) {
-            System.err.println("[AUTORIZAÇÃO] Erro HTTP ao autorizar a transação: " + e.getStatusCode() + " - " + e.getResponseBodyAsString());
+            logger.error("[AUTORIZAÇÃO] Erro HTTP ao autorizar a transação: " + e.getStatusCode() + " - " + e.getResponseBodyAsString());
             throw new CheckoutException("Erro HTTP ao autorizar a transação: " + e.getStatusCode() + " - " + e.getResponseBodyAsString(), e);
         } catch (RestClientException e) {
-            System.err.println("[AUTORIZAÇÃO] Erro de comunicação com o serviço de transações.");
+            logger.error("[AUTORIZAÇÃO] Erro de comunicação com o serviço de transações.");
             throw new CheckoutException("Erro de comunicação com o serviço de transações.", e);
         } catch (Exception e) {
-            System.err.println("[AUTORIZAÇÃO] Erro inesperado ao autorizar a transação.");
+            logger.error("[AUTORIZAÇÃO] Erro inesperado ao autorizar a transação.");
             throw new CheckoutException("Erro inesperado ao autorizar a transação.", e);
         }
     }

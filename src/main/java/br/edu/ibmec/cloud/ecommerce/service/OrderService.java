@@ -36,6 +36,12 @@ public class OrderService {
         return this.orderRepository.findByStatus(status);
     }
 
+    // Consulta por número do cartão
+    public List<Order> findByNumeroCartao(int numeroCartao) {
+        return this.orderRepository.findByNumeroCartao(numeroCartao);
+    }
+
+
     // Salva uma nova ordem
     public void save(Order order) {
         this.orderRepository.save(order);

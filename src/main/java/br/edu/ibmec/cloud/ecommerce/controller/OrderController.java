@@ -24,6 +24,13 @@ public class OrderController {
         return ResponseEntity.ok(orders);
     }
 
+
+    @GetMapping("/cartao/{numeroCartao}")
+    public ResponseEntity<List<Order>> findByNumeroCartao(@PathVariable int numeroCartao) {
+        List<Order> orders = this.orderService.findByNumeroCartao(numeroCartao);
+        return ResponseEntity.ok(orders);
+    }
+
     // Endpoint para buscar uma ordem específica pelo ID
     @GetMapping("/{orderId}")
     public ResponseEntity<Order> getOrderById(@PathVariable String orderId, @RequestParam String productId) {

@@ -10,5 +10,6 @@ public class CheckoutResponse {
     private String status;
     private String dataCompra;
     private String orderId;
+    private int numeroCartao;
 
 }

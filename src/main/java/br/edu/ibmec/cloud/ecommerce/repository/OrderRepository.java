@@ -13,5 +13,8 @@ import br.edu.ibmec.cloud.ecommerce.entity.Product;
 public interface OrderRepository extends CosmosRepository<Order, String> {
 
     List<Order> findByStatus(String status);
+
+    List<Order> findByNumeroCartao(int numeroCartao);
+
 }
     

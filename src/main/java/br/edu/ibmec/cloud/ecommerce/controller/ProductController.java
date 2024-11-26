@@ -50,4 +50,13 @@ public class ProductController {
         this.service.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    
+    @GetMapping("/{productId}")
+    public ResponseEntity<Product> getProductById(@PathVariable String productId) {
+        Optional<Product> product = this.service.findById(productId);
+        return product.map(ResponseEntity::ok)
+                      .orElse(ResponseEntity.notFound().build());
+    }
+
 }

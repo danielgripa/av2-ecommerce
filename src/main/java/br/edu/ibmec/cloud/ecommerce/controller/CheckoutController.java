@@ -44,7 +44,7 @@ public class CheckoutController {
         response.setProductId(order.getProductId());
         response.setStatus(order.getStatus());
         response.setOrderId(order.getOrderId());
-
+        response.setNumeroCartao(order.getNumeroCartao()); 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
 
     }
